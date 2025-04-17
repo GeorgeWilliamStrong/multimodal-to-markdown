@@ -1,0 +1,17 @@
+version: v1beta
+variable:
+  file:
+    title: Document
+    type: file
+component:
+  process-document:
+    type: document
+    input:
+      document: ${variable.file}
+      display-image-tag: true
+    task: TASK_CONVERT_TO_MARKDOWN
+    converter: pdfplumber # can also use 'docling', but this is best deployed as a model with CUDA
+output:
+  markdown:
+    title: Markdown
+    value: ${process-document.output.body}

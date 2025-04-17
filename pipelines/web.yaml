@@ -1,0 +1,77 @@
+version: v1beta
+variable:
+  url:
+    title: Web URL
+    description: URL to be processed
+    type: string
+  include-tags:
+    title: Include Tags
+    description: The tags that we only want to scrape
+    type: array:string
+    default:
+      - 'p'
+      - 'h1'
+      - 'h2'
+      - 'h3'
+      - 'h4'
+      - 'h5'
+      - 'h6'
+      - 'pre'
+      - 'code'
+      - 'script'
+      - 'style'
+  max-depth:
+    title: Maximum Depth
+    description: The maximum depth away from root URL
+    type: number
+    default: 20
+  max-k:
+    title: Maximum Pages
+    description: The max number of pages to crawl
+    type: number
+    default: 20
+  timeout:
+    title: Timeout
+    description: Time length (in milliseconds) for scraping dynamnic content
+    type: number
+    default: 0
+component:
+  crawler:
+    type: web
+    task: TASK_CRAWL_SITE
+    input:
+      max-depth: ${variable.max-depth}
+      max-k: ${variable.max-k}
+      timeout: ${variable.timeout}
+      url: ${variable.url}
+  extract-links:
+    type: json
+    input:
+      json-value: ${crawler.output.pages}
+      jq-filter: .[] | ."link"
+    condition:
+    task: TASK_JQ
+  scraper:
+    type: web
+    task: TASK_SCRAPE_PAGES
+    input:
+      include-html: false
+      only-include-tags: ${variable.include-tags}
+      only-main-content: true
+      scrape-method: http
+      timeout: ${variable.timeout}
+      urls: ${extract-links.output.results}
+  extract-markdown:
+    type: json
+    input:
+      json-value: ${scraper.output.pages}
+      jq-filter: .[] | ."markdown"
+    condition:
+    task: TASK_JQ
+output:
+  crawled:
+    title: Pages Crawled
+    value: ${crawler.output.pages}
+  scraped:
+    title: Scraped Markdown
+    value: ${extract-markdown.output.results}

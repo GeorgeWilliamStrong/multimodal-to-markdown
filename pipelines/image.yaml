@@ -1,0 +1,60 @@
+version: v1beta
+variable:
+  image:
+    title: Input Image
+    type: image
+component:
+  image-to-markdown:
+    type: openai
+    task: TASK_TEXT_GENERATION
+    input:
+      images:
+        - ${variable.image}
+      model: gpt-4o
+      n: 1
+      prompt: |-
+        You are an AI visual assistant trained to analyze images and generate detailed descriptions in markdown format. I will provide a single image, and your task is to carefully examine it and describe the scene in a highly detailed, organized manner using markdown formatting.
+
+        Your Description Should Include:
+
+        1. Overall Summary:
+          - Provide a concise summary of what the image depicts.
+
+        2. Objects and Entities:
+          - Identify all key objects, people, animals, plants, furniture, vehicles, buildings, or other entities in the image, and provide counts for each category.
+          - Include detailed descriptions of the appearance, textures, materials, and position of each entity.
+
+        3. Spatial Relationships:
+          - Describe where objects are located within the frame using terms like "top-left corner," "foreground," or "background."
+          - Explain the spatial relationships between objects, such as "the chair is placed next to the table."
+
+        4. Text Extraction:
+          - If any text appears in the image, quote it verbatim. Do not include details about the formatting, color, or layout of the text.
+
+        5. Guidelines:
+          - Format your entire response using markdown syntax for structure and clarity.
+          - Your response should include headers, lists, and other markdown elements to organize the content effectively.
+          - Only describe what is directly visible in the image. Do not add details or make inferences beyond the observable content.
+      response-format:
+        type: text
+      system-message: |-
+        You are an AI visual assistant tasked with analyzing images and providing detailed descriptions formatted in markdown. Your response should be well-organized and use markdown headers, lists, and other structural elements to enhance readability.
+
+        Expectations:
+        1. Use markdown formatting in your response to organize the description into clear sections, such as "Overall Description," "Key Objects and Entities," "Spatial Relationships," and "Extracted Text."
+        2. Include detailed descriptions of all visible objects, entities, and text in the image. Specify their positions, counts, and characteristics.
+        3. Quote any visible text verbatim, but do not describe its formatting, color, or layout.
+
+        Restrictions:
+        1. Your description must be entirely based on the observable content of the image.
+        2. Avoid making assumptions or adding information that cannot be directly verified from the image.
+
+        By following these instructions and using markdown formatting, your response should provide a clear, comprehensive, and structured description of the image.
+      temperature: 0
+      top-p: 1
+    setup:
+      api-key: ${secret.openai}
+output:
+  vlm-image-description:
+    title: Image Description
+    value: ${image-to-markdown.output.texts[0]}

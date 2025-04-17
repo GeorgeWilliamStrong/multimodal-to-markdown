@@ -1,0 +1,51 @@
+version: v1beta
+variable:
+  markdown:
+    title: Markdown text
+    description: Markdown text to load into Artifact
+    type: string
+  filename:
+    title: Filename
+    description: Filename to use (without extension)
+    type: string
+  create-new-catalog:
+    title: Create new catalog
+    description: Whether to create a new catalog
+    type: boolean
+  catalog-id:
+    title: Catalog ID
+    description: Catalog ID to create or use
+    type: string
+component:
+  encode-markdown:
+    type: base64
+    task: TASK_ENCODE
+    input:
+      data: ${variable.markdown}
+  index-markdown-existing:
+    type: instill-artifact
+    task: TASK_UPLOAD_FILE
+    input:
+      options:
+        namespace: admin
+        catalog-id: ${variable.catalog-id}
+        file-name: ${variable.filename}.md
+        file: ${encode-markdown.output.data}
+        option: existing catalog
+    condition: ${variable.create-new-catalog} == false
+  index-markdown-new:
+    type: instill-artifact
+    task: TASK_UPLOAD_FILE
+    input:
+      options:
+        namespace: admin
+        catalog-id: ${variable.catalog-id}
+        file-name: ${variable.filename}.md
+        file: ${encode-markdown.output.data}
+        option: create new catalog
+    condition: ${variable.create-new-catalog} == true
+output:
+  status-new:
+    value: ${index-markdown-new.output.status}
+  status-existing:
+    value: ${index-markdown-existing.output.status}
