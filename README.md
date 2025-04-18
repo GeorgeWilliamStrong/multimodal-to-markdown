@@ -108,7 +108,14 @@ Please see the related blog post [here](https://www.instill-ai.com/blog/make-com
 
 **How it works**
 
-This pipeline employs a hybrid approach, utilising a visual language model to refine, correct, and enrich the initial output from the heuristic parsing strategy with corresponding page images. This results in substantially higher quality Markdown text at the cost of increased latency and compute resources.
+This pipeline employs a hybrid approach, utilising a visual language model (VLM) to refine, correct, and enrich the initial output from the heuristic parsing strategy with corresponding page images. This results in substantially higher quality Markdown text at the cost of increased latency and compute resources. The process is as follows:
+
+1. Each page is converted to a high-resolution image (300 DPI)
+2. The document is parsed using our heuristics document operator to generate an initial Markdown draft
+3. The images and corresponding Markdown pages are batched
+4. Each batch is fed into a VLM to iteratively enhance and refine the Markdown
+5. Failover mechanism to perform pure VLM document OCR should the document operator fail to extract text
+6. Merge the Markdown batches into coherent final output
 
 **How to use it?**
 
@@ -246,7 +253,7 @@ Capable of processing `.JPEG`, `.PNG`, `.GIF`, `.WEBP`, `.TIFF`, `.BMP` file for
 
 **How it works**
 
-The pipeline leverages OpenAI's GPT-4o vision capabilities to analyze the image content and generate a comprehensive Markdown description. The model is prompted to provide a structured analysis that includes an overall summary, identification of objects and entities, spatial relationships, and text extraction.
+Internally, the pipeline calls OpenAI's GPT-4o VLM to analyze the image content and generate a comprehensive Markdown description. The model is prompted to provide a structured analysis that includes an overall summary, identification of objects and entities, spatial relationships, and text extraction.
 
 **How to use it?**
 
@@ -297,7 +304,7 @@ Capable of processing `.MP3`, `.WAV`, `.AAC`, `.OGG`, `.FLAC`, `.M4A`, `.WMA`, `
 The pipeline employs a multi-step approach:
 1. Voice Activity Detection (VAD) identifies speech segments in the audio
 2. Audio segmentation splits the file based on detected speech
-3. Each segment is transcribed using OpenAI's Whisper model
+3. Each segment is transcribed, in parallel, using OpenAI's Whisper model
 4. A post-processing step enhances the transcription with proper formatting, punctuation, and timestamps
 5. Finally, all segment transcriptions are merged into a single Markdown document
 
