@@ -110,10 +110,6 @@ Please see the related blog post [here](https://www.instill-ai.com/blog/make-com
 
 This pipeline employs a hybrid approach, utilising a visual language model to refine, correct, and enrich the initial output from the heuristic parsing strategy with corresponding page images. This results in substantially higher quality Markdown text at the cost of increased latency and compute resources.
 
-See the flowchart below for an overview of the pipeline architecture.
-
-<img src="/assets/images/doc-parsing-flow.svg" alt="Unstructured Data ETL Pipelines" width="400" height="auto">
-
 **How to use it?**
 
 Trigger via cURL:
@@ -157,7 +153,7 @@ Model implementation: `/models/docling/v0.1.2/`
 
 **How it works**
 
-Legacy microsoft file formats (`.DOC` and `.ppt`) are first converted to their modern `.DOCX` and `.PPTX` equivalents. The Docling model instance then triggers a series of specialised models to parse the document. This combines specialised models for segmenting document layouts, performing OCR, extracting tables, and more.  By default, the current implementation is designed to run on available CUDA-enabled GPUs. See the `/models/docling/v0.1.2/model.py` file for more details.
+Legacy microsoft file formats (`.DOC` and `.ppt`) are first converted to their modern `.DOCX` and `.PPTX` equivalents. The Docling model instance then triggers a series of specialised models to parse the document. This includes models for segmenting document layouts, performing OCR, extracting tables, and more.  By default, the current implementation is designed to run on available CUDA-enabled GPUs. See the `/models/docling/v0.1.2/model.py` file for more details.
 
 **How to deploy the model?**
 1. Run the following command to download the model weights locally.
